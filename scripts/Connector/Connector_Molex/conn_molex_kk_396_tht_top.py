@@ -108,13 +108,33 @@ def generate_one_footprint(pincount, configuration):
         type=Pad.TYPE_THT, shape=Pad.SHAPE_OVAL, layers=Pad.LAYERS_THT,
         **optional_pad_params))
 
+    offset_ramp_x = 1.905
+    offset_ramp_y = 1.005
+
     # create fab outline
-    kicad_mod.append(RectLine(start=[body_edge['left'], body_edge['top']],\
-        end=[body_edge['right'], body_edge['bottom']], layer='F.Fab', width=fab_w))
+    kicad_mod.append(PolygoneLine(polygone=[
+        [body_edge['left'], body_edge['top']],\
+        [body_edge['right'], body_edge['top']],\
+        [body_edge['right'], body_edge['bottom'] - offset_ramp_y],\
+        [body_edge['right'] - offset_ramp_x, body_edge['bottom'] - offset_ramp_y],\
+        [body_edge['right'] - offset_ramp_x, body_edge['bottom']],\
+        [body_edge['left'] + offset_ramp_x, body_edge['bottom']],\
+        [body_edge['left'] + offset_ramp_x, body_edge['bottom'] - offset_ramp_y],\
+        [body_edge['left'], body_edge['bottom'] - offset_ramp_y],\
+        [body_edge['left'], body_edge['top']]], layer='F.Fab', width=fab_w))
 
     # create silkscreen
-    kicad_mod.append(RectLine(start=[body_edge['left']-nudge, body_edge['top']-nudge],\
-        end=[body_edge['right']+nudge, body_edge['bottom']+nudge], layer='F.SilkS', width=silk_w))
+    kicad_mod.append(PolygoneLine(polygone=[
+        [body_edge['left'] - nudge, body_edge['top'] - nudge],\
+        [body_edge['right'] + nudge, body_edge['top'] - nudge],\
+        [body_edge['right'] + nudge, body_edge['bottom'] + nudge - offset_ramp_y],\
+        [body_edge['right'] + nudge - offset_ramp_x, body_edge['bottom'] + nudge - offset_ramp_y],\
+        [body_edge['right'] + nudge - offset_ramp_x, body_edge['bottom'] + nudge],\
+        [body_edge['left'] - nudge + offset_ramp_x, body_edge['bottom'] + nudge],\
+        [body_edge['left'] - nudge + offset_ramp_x, body_edge['bottom'] + nudge - offset_ramp_y],\
+        [body_edge['left'] - nudge, body_edge['bottom'] + nudge - offset_ramp_y],\
+        [body_edge['left'] - nudge, body_edge['top'] - nudge]], layer='F.SilkS',
+        width=silk_w))
 
     # pin 1 markers
     kicad_mod.append(Line(start=[body_edge['left']-0.4, -2.0],\
@@ -129,45 +149,40 @@ def generate_one_footprint(pincount, configuration):
     kicad_mod.append(PolygoneLine(polygone=poly_pin1_marker, layer='F.Fab', width=fab_w))
 
     yr1=body_edge['bottom']+nudge
-    yr2 = yr1 - 1
-    yr3 = yr2 - 0.53
-    if pincount <= 6:
-        # one ramp
-        kicad_mod.append(PolygoneLine(polygone=[[start_pos_x, yr1], [start_pos_x, yr2],\
-            [end_pos_x, yr2], [end_pos_x, yr1]], layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=[[start_pos_x, yr2], [start_pos_x+0.25, yr3],\
-            [end_pos_x-0.25, yr3], [end_pos_x, yr2] ],layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=[[start_pos_x+0.25, yr1],\
-            [start_pos_x+0.25, yr2]], layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=[[end_pos_x-0.25, yr1],\
-            [end_pos_x-0.25, yr2]], layer='F.SilkS', width=silk_w))
+    yr2 = yr1 - 1.0
+    yr3 = yr2 - 1.67
 
-    else:
-        # two ramps
-        poly1=[
-            {'x': start_pos_x, 'y': yr1},
-            {'x': start_pos_x, 'y': yr2},
-            {'x': start_pos_x+2*pitch, 'y': yr2},
-            {'x': start_pos_x+2*pitch, 'y': yr1}
-        ]
-        poly2=[
-            {'x': start_pos_x, 'y': yr2},
-            {'x': start_pos_x+0.25, 'y': yr3},
-            {'x': start_pos_x+2*pitch, 'y': yr3},
-            {'x': start_pos_x+2*pitch, 'y': yr2}
-        ]
-        poly3=[
-            {'x': start_pos_x+0.25, 'y': yr1},
-            {'x': start_pos_x+0.25, 'y': yr2}
-        ]
+    ramps_pin_map = {
+        2: [[1, 2]],
+        3: [[1, 3]],
+        4: [[1, 4]],
+        5: [[1, 5]],
+        6: [[1, 3], [4, 6]],
+        7: [[1, 4], [5, 7]],
+        8: [[1, 4], [5, 8]],
+        9: [[1, 5], [6, 9]],
+        10: [[1, 5], [6, 10]],
+        11: [[1, 6], [7, 11]],
+        12: [[1, 4], [5, 8], [9, 12]],
+        13: [[1, 4], [5, 9], [10, 13]],
+        14: [[1, 5], [6, 9], [10, 14]],
+        15: [[1, 5], [6, 10], [11, 15]],
+        16: [[1, 5], [6, 11], [12, 16]],
+        17: [[1, 6], [7, 11], [12, 17]],
+        18: [[1, 6], [7, 12], [13, 18]],
+    }
 
-        kicad_mod.append(PolygoneLine(polygone=poly1, layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=poly2, layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=poly3, layer='F.SilkS', width=silk_w))
-
-        kicad_mod.append(PolygoneLine(polygone=poly1, x_mirror=centre_x, layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=poly2, x_mirror=centre_x, layer='F.SilkS', width=silk_w))
-        kicad_mod.append(PolygoneLine(polygone=poly3, x_mirror=centre_x, layer='F.SilkS', width=silk_w))
+    for ramp in ramps_pin_map[pincount]:
+        ramp_start_x = start_pos_x + (ramp[0] - 1) * pitch
+        if ramp[0] != 1:
+            ramp_start_x -= 1.5
+        ramp_end_x = start_pos_x + (ramp[1] - 1) * pitch
+        if ramp[1] != pincount:
+            ramp_end_x += 1.5
+        kicad_mod.append(RectLine(start=[ramp_start_x, yr1], end=[ramp_end_x, yr2],\
+            layer='F.SilkS', width=silk_w))
+        kicad_mod.append(RectLine(start=[ramp_start_x, yr2], end=[ramp_end_x, yr3],\
+            layer='F.SilkS', width=silk_w))
 
     for i in range(0, pincount):
         middle_x = start_pos_x + i * pitch
