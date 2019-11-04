@@ -86,7 +86,7 @@ def generate_one_footprint(pincount, configuration):
 
     body_edge={
         'left':start_pos_x - 1.91,
-        'right':end_pos_x + pitch/2,
+        'right':end_pos_x + 1.91,
         'top':-5.11
         }
     body_edge['bottom'] = body_edge['top']+10.01
