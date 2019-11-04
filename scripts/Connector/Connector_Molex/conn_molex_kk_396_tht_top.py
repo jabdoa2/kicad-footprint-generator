@@ -89,7 +89,7 @@ def generate_one_footprint(pincount, configuration):
         'right':end_pos_x + pitch/2,
         'top':-5.11
         }
-    body_edge['top'] = body_edge['bottom']-10.01
+    body_edge['bottom'] = body_edge['top']+10.01
 
     # create pads
     # kicad_mod.append(Pad(number=1, type=Pad.TYPE_THT, shape=Pad.SHAPE_RECT,
