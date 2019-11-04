@@ -230,5 +230,5 @@ if __name__ == "__main__":
 
     configuration['kicad4_compatible'] = args.kicad4_compatible
 
-    for pincount in range(2, 17):
+    for pincount in range(2, 19):
         generate_one_footprint(pincount, configuration)
