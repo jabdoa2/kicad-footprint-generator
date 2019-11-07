@@ -179,9 +179,13 @@ def generate_one_footprint(pincount, configuration):
         ramp_end_x = start_pos_x + (ramp[1] - 1) * pitch
         if ramp[1] != pincount:
             ramp_end_x += 1.5
-        kicad_mod.append(RectLine(start=[ramp_start_x, yr1], end=[ramp_end_x, yr2],\
+        kicad_mod.append(PolygoneLine(polygone=[
+            [ramp_start_x, yr1], [ramp_start_x, yr2],\
+            [ramp_end_x, yr2], [ramp_end_x, yr1]],\
             layer='F.SilkS', width=silk_w))
-        kicad_mod.append(RectLine(start=[ramp_start_x, yr2], end=[ramp_end_x, yr3],\
+        kicad_mod.append(PolygoneLine(polygone=[
+            [ramp_start_x, yr2], [ramp_start_x, yr3],\
+            [ramp_end_x, yr3], [ramp_end_x, yr2]],\
             layer='F.SilkS', width=silk_w))
 
     for i in range(0, pincount):
